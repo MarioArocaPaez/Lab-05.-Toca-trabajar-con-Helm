@@ -8,13 +8,11 @@ my-app/
 ├── Chart.yaml                # Metadatos del chart principal
 ├── values.yaml               # Valores por defecto
 ├── charts/                   # Subcharts para cada componente
-│   ├── frontend/             # Configuración del frontend
-│   ├── backend/              # Configuración del backend
-│   └── database/             # Configuración de la base de datos
-├── templates/                # Plantillas principales
+│   ├── frontend/             # Subchart del frontend
+│   ├── backend/              # Subchart del backend
+│   └── database/             # Subchart de la base de datos
+├── templates/                # ConfigMap global
 │   ├── configmap.yaml
-│   ├── deployment.yaml
-│   └── service.yaml
 ├── values-dev.yaml           # Configuración para desarrollo
 ├── values-prod.yaml          # Configuración para producción
 └── README.md                 # Documentación del proyecto
@@ -86,3 +84,75 @@ git push -u origin main
 
 - Este proyecto sigue las mejores prácticas de Helm y Kubernetes.
 - Se recomienda probar localmente con herramientas como Minikube antes de desplegar en producción.
+
+---
+
+## 📊 Ejemplo de valores predeterminados (`values.yaml`)
+
+```yaml
+frontend:
+  image: nginx:latest
+  replicaCount: 2
+  service:
+    type: ClusterIP
+    port: 80
+
+backend:
+  image: my-backend:latest
+  replicaCount: 2
+  service:
+    type: ClusterIP
+    port: 8080
+
+database:
+  image: mysql:5.7
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 3306
+  persistence:
+    enabled: true
+    size: 1Gi
+```
+
+---
+
+## ⚙️ ConfigMap Global
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  labels:
+    app: my-app
+data:
+  redis_host: redis
+  app1_host: app1
+  app2_host: app2
+```
+
+---
+
+## 📝 Estructura de Subcharts
+
+Cada componente tiene su propio subchart para mantener la modularidad:
+
+### 📍 Frontend
+
+- Configuración de imagen y réplicas.
+- Definición de servicio y despliegue parametrizado.
+
+### 📍 Backend
+
+- Imagen y puerto configurados desde `values.yaml`.
+- Despliegue y servicio independientes.
+
+### 📍 Database
+
+- Definición de almacenamiento persistente.
+- Servicio tipo ClusterIP con puerto configurado.
+
+---
+
+Esta estructura garantiza flexibilidad, escalabilidad y adherencia a las mejores prácticas de Helm y Kubernetes.
